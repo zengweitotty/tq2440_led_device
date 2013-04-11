@@ -83,7 +83,7 @@ static ssize_t led_read(struct file *filp,char __user *buf,size_t count,loff_t *
 	if(*f_pos + count > LED_BUFFER_SIZE){
 		count = LED_BUFFER_SIZE - *f_pos;	
 	}
-	if(copy_to_user(dev->buf,buf,count)){
+	if(copy_to_user(buf,dev->buf,count)){
 		printk(KERN_ERR "[led/led_read]Can not read device\n");
 		return -EFAULT;
 	}
