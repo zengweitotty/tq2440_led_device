@@ -59,14 +59,16 @@ static ssize_t led_write(struct file *filp,const char __user *buf,size_t count,l
 		return -EFAULT;
 	}
 	*f_pos += count;
-	if(!strcmp(dev->buf,"on") || !strcmp(dev->buf,"off")){
-		if(!strcmp(dev->buf,"on")){	//led light on
+	if(!strncmp(dev->buf,"on",2) || !strncmp(dev->buf,"off",3)){
+		if(!strncmp(dev->buf,"on",2)){	//led light on
 			do{
 				*gpbdat |= 0x1 << (dev->led_index);
+				printk(KERN_INFO "[led/led_wite]LED is on\n");
 			}while(0);
 		}else{	//led light off
 			do{
 				*gpbdat &= ~(0x1 << (dev->led_index));		
+				printk(KERN_INFO "[led/led_wite]LED buffer is off\n");
 			}while(0);
 		}
 	}
@@ -82,11 +84,11 @@ static ssize_t led_read(struct file *filp,char __user *buf,size_t count,loff_t *
 		count = LED_BUFFER_SIZE - *f_pos;	
 	}
 	if(copy_to_user(dev->buf,buf,count)){
-		printk(KERN_ERR "[led/led_write]Can not write device\n");
+		printk(KERN_ERR "[led/led_read]Can not read device\n");
 		return -EFAULT;
 	}
 	*f_pos += count;
-	printk(KERN_INFO "[led/led_wite]LED buffer is %s\n",dev->buf);
+	printk(KERN_INFO "[led/led_read]LED buffer is %s\n",dev->buf);
 	return 0;
 }
 static int led_release(struct inode *inode,struct file *filp){
@@ -181,6 +183,7 @@ static int __init led_init(void){
 	          0x1 << 7 |
 	          0x1 << 8
 	         );
+	*gpbdat = 0xfffffff0;
 	printk(KERN_INFO "[led/led_init]Success initialize device\n");
 	return 0;	
 }
